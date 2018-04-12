@@ -8,7 +8,6 @@ namespace FinPlannerDataFirst.Models
 
     public partial class PersonalAccount
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public PersonalAccount()
         {
             Transactions = new HashSet<Transaction>();
@@ -30,8 +29,6 @@ namespace FinPlannerDataFirst.Models
         public bool IsDeleted { get; set; }
 
         public virtual Household Household { get; set; }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Transaction> Transactions { get; set; }
     }
 }

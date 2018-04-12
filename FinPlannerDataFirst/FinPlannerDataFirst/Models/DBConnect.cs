@@ -5,9 +5,9 @@ namespace FinPlannerDataFirst.Models
     using System.ComponentModel.DataAnnotations.Schema;
     using System.Linq;
 
-    public partial class FinPlannerDataFirst : DbContext
+    public partial class DBConnect : DbContext
     {
-        public FinPlannerDataFirst()
+        public DBConnect()
             : base("name=FinPlannerDataFirst")
         {
         }

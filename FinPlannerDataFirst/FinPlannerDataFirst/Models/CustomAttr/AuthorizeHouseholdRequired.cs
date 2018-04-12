@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FinPlannerDataFirst.Models.Helpers;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -16,7 +17,6 @@ namespace FinPlannerDataFirst.Models.CustomAttr
             {
                 return false;
             }
-            // fix this - where does this method go?
             return httpContext.User.Identity.IsInHousehold();
         }
 
