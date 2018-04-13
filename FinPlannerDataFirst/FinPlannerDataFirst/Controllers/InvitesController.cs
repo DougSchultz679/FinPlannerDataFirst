@@ -4,9 +4,13 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using FinPlannerDataFirst.Models;
+using FinPlannerDataFirst.Models.CustomAttr;
+using FinPlannerDataFirst.Models.Helpers;
+using Microsoft.AspNet.Identity;
 
 namespace FinPlannerDataFirst.Controllers
 {
@@ -36,27 +40,44 @@ namespace FinPlannerDataFirst.Controllers
             return View(invite);
         }
 
+
+        // RM THIS
         // GET: Invites/Create
-        public ActionResult Create()
-        {
-            ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name");
-            return View();
-        }
+        //public ActionResult Create()
+        //{
+        //    ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name");
+        //    return View();
+        //}
 
         // POST: Invites/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,HouseholdId,Email,HHToken,InviteDate,InvitedById,HasBeenUsed")] Invite invite)
+        [AuthorizeHouseholdRequired]
+        public async Task<ActionResult> Create([Bind(Include = "HouseholdId,Email")] Invite invite)
         {
             if (ModelState.IsValid)
             {
+                invite.HasBeenUsed = false;
+                invite.InviteDate = DateTimeOffset.Now;
+                invite.HHToken = new Guid();
+                invite.InvitedById = User.Identity.GetUserId();
+
+                EmailSender es = new EmailSender();
+                //FIX THIS - should send user to household dash
+                var callbackUrl = Url.Action("Details", "Tickets", null, protocol: Request.Url.Scheme);
+
+                await es.SendInviteNoti(User.Identity.Name,callbackUrl,invite.Email,invite.HHToken);
+
                 db.Invites.Add(invite);
                 db.SaveChanges();
+
+                // FIX THIS - redirect to household dash
                 return RedirectToAction("Index");
             }
 
+            //FIX THIS - these are gonna be different views
             ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name", invite.HouseholdId);
             return View(invite);
         }
