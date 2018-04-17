@@ -25,28 +25,19 @@ namespace FinPlannerDataFirst.Controllers
             return View(invites.ToList());
         }
 
-        // GET: Invites/Details/5
-        public ActionResult Details(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Invite invite = db.Invites.Find(id);
-            if (invite == null)
-            {
-                return HttpNotFound();
-            }
-            return View(invite);
-        }
-
-
-        // RM THIS
-        // GET: Invites/Create
-        //public ActionResult Create()
+        //// GET: Invites/Details/5
+        //public ActionResult Details(int? id)
         //{
-        //    ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name");
-        //    return View();
+        //    if (id == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        //    }
+        //    Invite invite = db.Invites.Find(id);
+        //    if (invite == null)
+        //    {
+        //        return HttpNotFound();
+        //    }
+        //    return View(invite);
         //}
 
         // POST: Invites/Create
@@ -55,31 +46,30 @@ namespace FinPlannerDataFirst.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [AuthorizeHouseholdRequired]
-        public async Task<ActionResult> Create([Bind(Include = "HouseholdId,Email")] Invite invite)
+        public async Task<ActionResult> Create(string email, string fName, string lName)
         {
-            if (ModelState.IsValid)
-            {
-                invite.HasBeenUsed = false;
-                invite.InviteDate = DateTimeOffset.Now;
-                invite.HHToken = new Guid();
-                invite.InvitedById = User.Identity.GetUserId();
+            Invite inv = new Invite() {
+                Email = email,
+                HasBeenUsed = false,
+                InviteDate = DateTimeOffset.Now,
+                HHToken = new Guid(),
+                InvitedById = User.Identity.GetUserId()
+            };
 
-                EmailSender es = new EmailSender();
-                //FIX THIS - should send user to household dash
-                var callbackUrl = Url.Action("Details", "Tickets", null, protocol: Request.Url.Scheme);
+            //FIX THIS - should be able to save the full name through the email and then cause it to become the fullname of the new joinee.  
+            string fullName = fName + " " + lName;
 
-                await es.SendInviteNoti(User.Identity.Name,callbackUrl,invite.Email,invite.HHToken);
+            EmailSender es = new EmailSender();
+            //FIX THIS - should send user to household dash
+            var callbackUrl = Url.Action("Details", "Tickets", null, protocol: Request.Url.Scheme);
 
-                db.Invites.Add(invite);
-                db.SaveChanges();
+            await es.SendInviteNoti(User.Identity.Name, callbackUrl, fName, inv.Email, inv.HHToken);
 
-                // FIX THIS - redirect to household dash
-                return RedirectToAction("Index");
-            }
+            db.Invites.Add(inv);
+            db.SaveChanges();
 
-            //FIX THIS - these are gonna be different views
-            ViewBag.HouseholdId = new SelectList(db.Households, "Id", "Name", invite.HouseholdId);
-            return View(invite);
+            // FIX THIS - redirect to household dash
+            return RedirectToAction("Index");
         }
 
         // GET: Invites/Edit/5

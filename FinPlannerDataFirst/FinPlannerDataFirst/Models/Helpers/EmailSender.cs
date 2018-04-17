@@ -10,7 +10,7 @@ namespace FinPlannerDataFirst.Models.Helpers
 {
     public class EmailSender
     {
-        public async Task<ActionResult> SendInviteNoti(string senderName, string callbackUrl, string targetEmail, Guid token)
+        public async Task<ActionResult> SendInviteNoti(string senderName, string callbackUrl, string targetName, string targetEmail, Guid token)
         {
             try
             {
@@ -20,9 +20,9 @@ namespace FinPlannerDataFirst.Models.Helpers
 
                 msg.Subject = "Financial Planner: You've been invited to join by " + senderName + "!";
                 msg.Destination = targetEmail;
-                msg.Body = 
-                    "Hey!"+ Environment.NewLine +
-                    "You have been invited to join a household by " +senderName+ "!" + Environment.NewLine + "Please click the following link to sign up and review your household budget: " + "<a href=\"" + callbackUrl + "\">Join Household Now!</a>";
+                msg.Body =
+                    "Hey" + targetName + "!" + Environment.NewLine +
+                    "You have been invited to join a household by " + senderName + "!" + Environment.NewLine + "Please click the following link to sign up and review your household budget: " + "<a href=\"" + callbackUrl + "\">Join Household Now!</a>";
 
                 await ems.SendMailAsync(msg);
             } catch (Exception ex)
@@ -32,6 +32,5 @@ namespace FinPlannerDataFirst.Models.Helpers
             }
             return new EmptyResult();
         }
-
     }
 }
